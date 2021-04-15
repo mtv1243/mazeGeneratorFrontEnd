@@ -29,6 +29,13 @@
             justify-content: center;
             align-items: center;
         }
+        .links {
+            display: flex;
+            margin: 2rem auto;
+            justify-content: space-between;
+            align-items: center;
+            width: 75vw;
+        }
         button {
             text-align: center;
             display: inline-block;
@@ -54,6 +61,11 @@
             height: 20px;
             text-align: center;
         }
+        @media only screen and (max-width: 768px) {
+            .links {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -64,7 +76,7 @@
         <label for="mazeType">Maze generation algorithm:</label>
         <select name="mazeType" id="mazeType">
             <option value="wilsons">Wilson's (Loop-Erased Random Walk)</option>
-            <option value="dfs">Depth First Iterative</option>
+            <option value="dfs">Depth First Search Iterative</option>
             <option value="aldous" selected>Aldous/Broder</option>
         </select>
         <span>
@@ -72,11 +84,15 @@
             <input type="checkbox" value="true" name="numbered" id="numbered">
         </span>
         <button id="new-maze" onclick="generateNewMaze()">Generate New Maze</button>
-
+        
     </div>
 
     <div id="maze"></div>
 
+    <div class="links"><a href="https://github.com/mtv1243/mazeGeneratorFrontEnd" target="_blank" rel="noopener">Github Repo</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_division_method" target="_blank">Maze Generation Algorithms</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Loop Erased Random Walk</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Depth First Search</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Aldous-Broder_algorithm" target="_blank">Aldous/Broder</a>
+    </div>
+
+    <!-- https://en.wikipedia.org/wiki/Depth-first_search -->
 
     <script src="./mazeGen.js"></script>
     <script>
