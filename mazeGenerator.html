@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        .graph {
+            
+            margin: 0 auto;
+            width: 6rem;
+        }
+        .vert {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 1px solid;
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+        .controls {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        button {
+            text-align: center;
+            display: inline-block;
+            margin: 20px auto;
+        }
+        .edgelength {
+            margin: 10px auto;
+            display: block;
+            width: 65px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            font-size: .5rem;
+        }
+        .trow {
+            padding: 0;
+            margin: 0;
+            width:6rem;
+        }
+        .cell {
+            min-width:20px;
+            height: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        
+        <label for="edgelength">Edgelength</label>
+        <input class="edgelength" name="edgelength" type="number" value="4" placeholder="edgelength">
+        <label for="mazeType">Maze generation algorithm:</label>
+        <select name="mazeType" id="mazeType">
+            <option value="wilsons">Wilson's (Loop-Erased Random Walk)</option>
+            <option value="dfs">Depth First Iterative</option>
+            <option value="aldous" selected>Aldous/Broder</option>
+        </select>
+        <span>
+            <label for="numbered">Numbered cells?</label>
+            <input type="checkbox" value="true" name="numbered" id="numbered">
+        </span>
+        <button id="new-maze" onclick="generateNewMaze()">Generate New Maze</button>
+
+    </div>
+
+    <div id="maze"></div>
+
+
+    <script src="./mazeGen.js"></script>
+    <script>
+
+        generateNewMaze();
+
+        function generateNewMaze() {
+
+        let edgeLength = parseInt(document.querySelector(".edgelength").value);
+        let isNumbered = document.querySelector("#numbered").checked;
+        
+
+        let graph = new Graph(edgeLength);
+
+        let mazeType = document.querySelector("#mazeType").value;
+
+        switch(mazeType) {
+            case "wilsons":
+                graph.createMazeWilsons();
+                break;
+            case "dfs":
+                graph.createMazeDfsIter();
+                break;
+            case "aldous":
+                graph.createMazeAldous();
+                break;
+        }
+
+        let binaryEdges = graph.visualize();
+
+        console.log(binaryEdges);
+        
+        let mazeEl = document.querySelector("#maze");
+        mazeEl.innerHTML = "";
+        let table = document.createElement("table");
+
+        let counter = 0;
+
+        for(let i=0; i<binaryEdges.length; i++) {
+
+            let row = document.createElement("tr");
+            row.classList.add('trow');
+
+            for(let j=0; j<binaryEdges[i].length; j++) {
+                
+                let edges = binaryEdges[i][j];
+
+                let cell = document.createElement("td");
+                cell.classList.add("cell");
+
+                if(isNumbered) {
+                    cell.innerHTML = counter;
+                    counter++;
+                }
+                
+
+                if(edges[0] === 0) {
+                    cell.style.borderTop = "2px solid";
+                } else {
+                    cell.style.borderTop = "none";
+                }
+                
+                if(edges[1] === 0) {
+                    cell.style.borderRight = "2px solid";
+                } else {
+                    cell.style.borderRight = "none";
+                }
+                
+                if(edges[2] === 0) {
+                    cell.style.borderBottom = "2px solid";
+                } else {
+                    cell.style.borderBottom = "none";
+                }
+
+                if(edges[3] === 0) {
+                    cell.style.borderLeft = "2px solid";
+                } else {
+                    cell.style.borderLeft = "none";
+                }
+
+                // check if first cell, make green
+                if(j === 0 && i === 0) {
+                    cell.style.backgroundColor = "#00e50b";
+                }
+
+                // check if last cell, make red
+                if(j === binaryEdges.length-1 && i === binaryEdges.length-1) {
+                    cell.style.backgroundColor = "#ff5e5e";
+                }
+
+                row.appendChild(cell);
+            }
+
+            table.appendChild(row);
+        }
+        mazeEl.appendChild(table);
+        console.log(isNumbered);
+         }
+    </script>
+</body>
+</html>
