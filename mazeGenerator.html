@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph Generator</title>
+    <title>Maze Generator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,6 +28,11 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+        .methodWrapper {
+            margin: 1rem auto;
+            width: 22rem;
+            text-align: center;
         }
         .links {
             display: flex;
@@ -84,18 +89,24 @@
             <input type="checkbox" value="true" name="numbered" id="numbered">
         </span>
         <button id="new-maze" onclick="generateNewMaze()">Generate New Maze</button>
+        <br>
+        <button id="manual-maze" onclick="generateEmptyMaze()">Generate Empty Maze</button>
+        <button id="manual-maze" onclick="generateNewMazeManual()">Step Through Selected Algorithm</button>
         
     </div>
 
+    <div class="methodWrapper">Method: <span class="currentMethod"></span></div>
+    
+
     <div id="maze"></div>
-
-    <div class="links"><a href="https://github.com/mtv1243/mazeGeneratorFrontEnd" target="_blank" rel="noopener">Github Repo</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_division_method" target="_blank">Maze Generation Algorithms</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Loop Erased Random Walk</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Depth First Search</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Aldous-Broder_algorithm" target="_blank">Aldous/Broder</a>
+    <div class="links"><a href="https://github.com/mtv1243/mazeGeneratorFrontEnd" target="_blank" rel="noopener">Github Repo</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm" target="_blank">Maze Generation Algorithms</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Loop Erased Random Walk</a><a href="https://en.wikipedia.org/wiki/Loop-erased_random_walk" target="_blank">Depth First Search</a><a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Aldous-Broder_algorithm" target="_blank">Aldous/Broder</a>
     </div>
-
-    <!-- https://en.wikipedia.org/wiki/Depth-first_search -->
 
     <script src="./mazeGen.js"></script>
     <script>
+
+        let mazeEl = document.querySelector("#maze");
+        let methodEl = document.querySelector(".currentMethod");
 
         generateNewMaze();
 
@@ -103,29 +114,31 @@
 
         let edgeLength = parseInt(document.querySelector(".edgelength").value);
         let isNumbered = document.querySelector("#numbered").checked;
-        
 
         let graph = new Graph(edgeLength);
 
         let mazeType = document.querySelector("#mazeType").value;
 
-        switch(mazeType) {
+        switch (mazeType) {
             case "wilsons":
                 graph.createMazeWilsons();
+                methodEl.innerHTML = "Wilson's (Loop-Erased Random Walk";
                 break;
             case "dfs":
                 graph.createMazeDfsIter();
+                methodEl.innerHTML = "Depth First Iterative";
                 break;
             case "aldous":
                 graph.createMazeAldous();
+                methodEl.innerHTML = "Aldous/Broder";
                 break;
         }
 
+        methodEl.inerHTML = mazeType;
+
         let binaryEdges = graph.visualize();
 
-        console.log(binaryEdges);
         
-        let mazeEl = document.querySelector("#maze");
         mazeEl.innerHTML = "";
         let table = document.createElement("table");
 
@@ -143,11 +156,10 @@
                 let cell = document.createElement("td");
                 cell.classList.add("cell");
 
-                if(isNumbered) {
+                if (isNumbered) {
                     cell.innerHTML = counter;
                     counter++;
                 }
-                
 
                 if(edges[0] === 0) {
                     cell.style.borderTop = "2px solid";
@@ -174,12 +186,12 @@
                 }
 
                 // check if first cell, make green
-                if(j === 0 && i === 0) {
+                if (j === 0 && i === 0) {
                     cell.style.backgroundColor = "#00e50b";
                 }
 
                 // check if last cell, make red
-                if(j === binaryEdges.length-1 && i === binaryEdges.length-1) {
+                if (j === binaryEdges.length - 1 && i === binaryEdges.length - 1) {
                     cell.style.backgroundColor = "#ff5e5e";
                 }
 
@@ -189,8 +201,139 @@
             table.appendChild(row);
         }
         mazeEl.appendChild(table);
-        console.log(isNumbered);
          }
+
+         // =========================
+        // Manual maze creation
+        // =========================
+        
+        let manualGraph;
+        
+        function manualDomGraph(binaryEdges, stack, wilsonsPath=[]) {
+            let current = stack ? stack[stack.length-1] : null;
+            
+            let table = document.createElement("table");
+            let isNumbered = document.querySelector("#numbered").checked;
+            let counter = 0;
+
+            for(let i=0; i<binaryEdges.length; i++) {
+
+                let row = document.createElement("tr");
+                row.classList.add('trow');
+
+                for(let j=0; j<binaryEdges[i].length; j++) {
+                    
+                    let edges = binaryEdges[i][j];
+
+                    let cell = document.createElement("td");
+                    cell.classList.add("cell");
+
+                    if(isNumbered) {
+                        cell.innerHTML = counter;
+                    }
+
+                    // increment the couter
+                    
+
+                    if(edges[0] === 0) {
+                        cell.style.borderTop = "2px solid";
+                    } else {
+                        cell.style.borderTop = "none";
+                    }
+                    
+                    if(edges[1] === 0) {
+                        cell.style.borderRight = "2px solid";
+                    } else {
+                        cell.style.borderRight = "none";
+                    }
+                    
+                    if(edges[2] === 0) {
+                        cell.style.borderBottom = "2px solid";
+                    } else {
+                        cell.style.borderBottom = "none";
+                    }
+
+                    if(edges[3] === 0) {
+                        cell.style.borderLeft = "2px solid";
+                    } else {
+                        cell.style.borderLeft = "none";
+                    }
+
+                    // check if first cell, make green
+                    if(j === 0 && i === 0) {
+                        cell.style.backgroundColor = "#00e50b";
+                    }
+
+                    // check if last cell, make red
+                    if(j === binaryEdges.length-1 && i === binaryEdges.length-1) {
+                        cell.style.backgroundColor = "#ff5e5e";
+                    }
+
+                    // check if cell is in wilsonsPath, if yes, make yellow
+                    
+                    if(wilsonsPath !== [] && wilsonsPath.indexOf(counter) !== -1) {
+                        cell.style.backgroundColor = "#77e1ff";
+                        
+                    }
+                    
+                    // for aldous manual
+                    // check if cell is current cell, make blue
+                    if(counter === manualGraph.manualAldousCurrent) {
+                        cell.style.backgroundColor = "#51bfff";
+                    }
+
+                    // for DFS manual
+                    // check if last in stack is same as counter
+                    if(current === counter) {
+                        cell.style.backgroundColor = "#51bfff";
+                        
+                    }
+
+                    counter++;
+
+                    row.appendChild(cell);
+                }
+            table.appendChild(row);
+            }
+            // reset the maze DOM element
+            mazeEl.innerHTML = "";
+            mazeEl.appendChild(table);
+        }
+
+        function generateEmptyMaze() {
+            let edgeLengthManual = parseInt(document.querySelector(".edgelength").value);
+            manualGraph = new Graph(edgeLengthManual);
+
+            let binaryEdges = manualGraph.visualize();
+            manualDomGraph(binaryEdges);
+        }
+        
+        function generateNewMazeManual() {
+            if(manualGraph === undefined) {
+                alert("First you must generate an empty maze!");
+                return;
+            }
+
+            switch(document.querySelector("#mazeType").value) {
+                case "dfs":
+                    manualGraph.manualDfs();
+                    methodEl.innerHTML = "Depth First Iterative";
+                    break;
+                case "aldous":
+                    manualGraph.manualAldous();
+                    methodEl.innerHTML = "Alous/Broder";
+                    break;
+                case "wilsons":
+                    manualGraph.manualWilsons();
+                    methodEl.innerHTML = "Wilson's (Loop-Erased Random Walk)";
+                    break;
+            }
+
+            let binaryEdges = manualGraph.visualize();
+            manualDomGraph(binaryEdges, manualGraph.dfsStack, manualGraph.wilsonsPath);
+            
+        }
+
     </script>
 </body>
 </html>
